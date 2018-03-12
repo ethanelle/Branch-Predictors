@@ -1,7 +1,7 @@
 # CS 320 Project 1
-## Ethan Elliott - Binghamton University
 
 This project is a branch prediction simulator. The predictor reads a text file as a command line argument and returns the results on the command line as well as in a text file "output.txt."
+**Note:** This project is for reference only. Any code used must be adequately acknowleged.
 
 ### Files
 * Makefile : Self-explanatory, how to use it is described below in "Running the program"
@@ -38,4 +38,7 @@ To run after compiling with any test file:
   * Bimodal table set to 2048 entries
 
 Each line in output represents the respective predictor results.
+
+### References
+* [Combining Branch Predictors](http://www.hpl.hp.com/techreports/Compaq-DEC/WRL-TN-36.pdf), Scott McFarling
 
