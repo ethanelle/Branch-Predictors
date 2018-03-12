@@ -1,13 +1,13 @@
-takeAll: takeAll.cpp
-	g++ takeAll.cpp -o takeAll
-	./takeAll ../traces/short_trace1.txt
+combine: clean_combine.cpp
+	g++ clean_combine.cpp -o combine
 
-notTakeAll: notTakeAll.cpp
-	g++ notTakeAll.cpp -o notTakeAll
-	./notTakeAll ../traces/short_trace1.txt
+run: combine
+	./combine ../../traces/short_trace1.txt
+
+run_long: combine
+	./combine ../../traces/long_trace1.txt
 
 clean:
+	rm -rf combine
 	rm -rf *.o
-	rm -rf takeAll
-	rm -rf notTakeAll
 	rm -rf output.txt
