@@ -28,14 +28,14 @@ To run after compiling with any test file:
 * Take all branches
 * Not take all branches
 * Bimodal with table and 1-bit history
- * Table entries: 16, 32, 128, 256, 512, 1024, 2048
+  * Table entries: 16, 32, 128, 256, 512, 1024, 2048
 * Bimodal with table and saturating 2-bit history
- * Table entries: 16, 32, 128, 256, 512, 1024, 2048
+  * Table entries: 16, 32, 128, 256, 512, 1024, 2048
 * GShare with expanding global history register
- * Register size begins at 3 bits and expands by one each loop until 11 bits.
+  * Register size begins at 3 bits and expands by one each loop until 11 bits.
 * Tournament (GShare and bimodal saturating)
- * GShare global history register set to 11 bits
- * Bimodal table set to 2048 entries
+  * GShare global history register set to 11 bits
+  * Bimodal table set to 2048 entries
 
 Each line in output represents the respective predictor results.
 
