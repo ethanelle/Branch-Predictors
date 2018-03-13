@@ -295,82 +295,56 @@ void gShare(std::vector<std::string> &list, std::fstream &outFile)
 }
 
 void tournamentHelper(long &correct, long bCorrect, long bCorrectTemp, long gCorrect, 
-	long gCorrectTemp, Selector &select)
+	long gCorrectTemp, Selector *table, std::string line)
 {
-	if((bCorrect != bCorrectTemp) && (gCorrect != gCorrectTemp)) /* both predictors */
+	long addr;
+	std::string line_long = line.substr(0,10);
+	addr = std::stoul(line_long, nullptr, 16);
+	addr = addr % 2048;
+	Selector *s = &(table[addr]);
+	
+	if((bCorrect != bCorrectTemp) && (gCorrect != gCorrectTemp)) /* both found the right answer */
 	{
 		correct++;
-	}
-	#if 0
-	else
+	}else if(*s == stronglyGShare)
 	{
-		if(select == stronglyGShare || select == weaklyGShare)
-		{ /* gShare path */
-			if(gCorrect != gCorrectTemp)
-			{
-				correct++;
-				if(select == weaklyGShare)
-					select = stronglyGShare;
-			}else if(select == stronglyGShare)
-			{
-				select = weaklyGShare;
-			}else
-			{
-				select = weaklyBimodal;
-			}
-		}else
-		{ /* bimodal path */
-			if(bCorrect != bCorrectTemp)
-			{
-				correct++;
-				if(select = weaklyBimodal)
-					select = stronglyBimodal;
-			}else if(select == stronglyBimodal)
-			{
-				select = weaklyBimodal;
-			}else
-			{
-				select = weaklyGShare;
-			}
-		}
-	}
-	#endif
-	
-	#if 1
-	else if((bCorrect != bCorrectTemp) && (gCorrect == gCorrectTemp)) /* only bimodal */
-	{
-		if(select == stronglyBimodal)
+		if(gCorrect != gCorrectTemp)
 		{
 			correct++;
-		}else if(select == weaklyBimodal)
-		{
-			correct++;
-			select = stronglyBimodal;
-		}else if(select == weaklyGShare)
-		{
-			select = weaklyBimodal;
 		}else
 		{
-			select = weaklyGShare;
+			*s = weaklyGShare;
 		}
-	}else if((bCorrect == bCorrectTemp) && (gCorrect != gCorrectTemp)) /* only gShare */
+	}else if(*s == weaklyGShare)
 	{
-		if(select == stronglyGShare)
+		if(gCorrect != gCorrectTemp)
 		{
 			correct++;
-		}else if(select == weaklyGShare)
-		{
-			correct++;
-			select = stronglyGShare;
-		}else if(select == weaklyBimodal)
-		{
-			select = weaklyGShare;
+			*s = stronglyGShare;
 		}else
 		{
-			select = weaklyBimodal;
+			*s = weaklyBimodal;
+		}
+	}else if(*s == weaklyBimodal)
+	{
+		if(bCorrect != bCorrectTemp)
+		{
+			correct++;
+			*s = stronglyBimodal;
+		}else
+		{
+			*s = weaklyGShare;
+		}
+	}else
+	{
+		if(bCorrect != bCorrectTemp)
+		{
+			correct++;
+		}else
+		{
+			*s = weaklyBimodal;
 		}
 	}
-	#endif
 }
 
 void tournament(std::vector<std::string> &list, std::fstream &outFile)
@@ -381,12 +355,16 @@ void tournament(std::vector<std::string> &list, std::fstream &outFile)
 	HistorySaturating gTable[2048], bTable[2048];
 	std::vector<std::string>::iterator it;
 	S globalHistory = {0};
-	Selector select = stronglyGShare;
+	Selector selectorTable[2048];
 	
 	for(int i = 0; i < 2048; i++)
-		gTable[i] = bTable[i] = stronglyTaken;
+	{
+		gTable[i] = stronglyTaken;
+		bTable[i] = stronglyTaken;
+		selectorTable[i] = stronglyGShare;
+	}
 
-	total = correct = gCorrect = bCorrect = 0;
+	total = correct = gCorrect = bCorrect = bCorrectTemp = gCorrectTemp = 0;
 	for(it = list.begin(); it != list.end(); it++)
 	{
 		gCorrectTemp = gCorrect;
@@ -395,7 +373,7 @@ void tournament(std::vector<std::string> &list, std::fstream &outFile)
 		gShareHelper(*it, bitMask, globalHistory, gTable, gCorrect);
 		bimodalSaturatingHelper(*it, 2048, bTable, bCorrect);
 		
-		tournamentHelper(correct, bCorrect, bCorrectTemp, gCorrect, gCorrectTemp, select);
+		tournamentHelper(correct, bCorrect, bCorrectTemp, gCorrect, gCorrectTemp, selectorTable, *it);
 		total++;
 	}
 	std::cout << correct << "," << total << ";" << std::endl;
@@ -418,20 +396,32 @@ int main(int argc, char const* argv[])
 	{
 		list.push_back(line);
 	}
-	std::cerr << "List size: " << list.size() << std::endl;
 	inFile.close();
 	
 	/* all contents of file are in vector<string> list */
-	takeAll(list, outFile);
-	notTakeAll(list, outFile);
-	bimodalSingle(list, outFile);
-	bimodalSaturating(list, outFile);
-	gShare(list, outFile);
+//	takeAll(list, outFile);
+//	notTakeAll(list, outFile);
+//	bimodalSingle(list, outFile);
+//	bimodalSaturating(list, outFile);
+//	gShare(list, outFile);
+	std::cout << "Actual:  ";
 	tournament(list, outFile);
+	std::cout << "Desired: 1948993,2229289;" << std::endl;
 	
 	std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) 
 		<< " ms" << std::endl;
 	
+	outFile.close();
+	
+	outFile.open("output.txt", std::ios::in);
+	line = "1948993,2229289;";
+	std::string line2;
+	std::getline(outFile, line2);
+	if(line.compare(line2) == 0)
+		std::cout << "Match!" << std::endl;
+	else
+		std::cout << "No match" << std::endl;
+		
 	outFile.close();
 	
 	return 0;
