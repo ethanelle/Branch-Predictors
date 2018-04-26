@@ -1,4 +1,4 @@
-# CS 320 Project 1
+# Branch Predictor Project
 
 This project is a branch prediction simulator. The predictor reads a text file as a command line argument and returns the results on the command line as well as in a text file "output.txt."
 
